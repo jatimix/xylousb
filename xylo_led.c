@@ -466,8 +466,9 @@ static int __init usb_xylo_led_init(void)
   int retval = 0;
 
   retval = usb_register(&xylo_led_driver);
-  if (retval) {
-    err("usb_register failed. Error number %d", retval);
+  if (retval)
+  {
+    printk("usb_register failed. Error number %d", retval);
     return retval;
   }
 
