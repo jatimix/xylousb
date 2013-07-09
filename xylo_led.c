@@ -278,8 +278,18 @@ static ssize_t xylo_led_write(struct file *file,
 			      size_t count,
 			      loff_t *ppos)
 {
-  /* ??? */
-  return 0;
+  size_t real;
+  position courante (0)
+  real = min((size_t)BUF_SIZE, count);
+  if (real)
+    if (copy_from_user(buffer, buf, real))
+      return -EFAULT;
+  num = real; /* Destructive write (overwrite
+  previous data if any) */
+  printk(KERN_DEBUG "mydriver3: wrote %d/%d chars
+    %s\n", real, count, buffer);
+
+  return real;
 }
 
 /**
@@ -291,13 +301,16 @@ static ssize_t xylo_led_read(struct file *file,
 			     size_t count,
 			     loff_t *ppos)
 {
-  /* Send scancode info to user-space */
-  //???
-
-  /* no more data => sleep again */
-  //???
-
-  return 0;//strlen(buffer);
+  size_t real;
+  real = min(num, count);
+  if (real)
+    if (copy_to_user(buf, buffer, real))
+      return -EFAULT;
+  num = 0; /* Destructive read (no more data after a
+  read) */
+  printk(KERN_DEBUG "mydriver3: read %d/%d chars
+    %s\n", real, count, buffer);
+  return real;
 }
 
 /**
