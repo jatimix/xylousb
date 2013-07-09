@@ -11,8 +11,15 @@ MODULE_LICENSE("GPL");
 
 #define BUF_SIZE	16
 
+/// begin fix
+
+static char buffer[BUF_SIZE]; //used for the copy_from and copy_to
+/// end fix
+
+
 #define VENDOR_ID	0x04B4
 #define PRODUCT_ID	0x8613
+
 
 /*
  * Data for a xylo device
@@ -279,15 +286,13 @@ static ssize_t xylo_led_write(struct file *file,
 			      loff_t *ppos)
 {
   size_t real;
-  position courante (0)
-  real = min((size_t)BUF_SIZE, count);
+
+  real = min((size_t) BUF_SIZE, count);
   if (real)
     if (copy_from_user(buffer, buf, real))
       return -EFAULT;
-  num = real; /* Destructive write (overwrite
-  previous data if any) */
-  printk(KERN_DEBUG "mydriver3: wrote %d/%d chars
-    %s\n", real, count, buffer);
+
+  printk(KERN_DEBUG "xylo_driver: write %zu chars %s\n", real, buffer);
 
   return real;
 }
@@ -302,15 +307,25 @@ static ssize_t xylo_led_read(struct file *file,
 			     loff_t *ppos)
 {
   size_t real;
-  real = min(num, count);
+
+  real = min(count, (size_t) BUF_SIZE);
+
   if (real)
     if (copy_to_user(buf, buffer, real))
       return -EFAULT;
-  num = 0; /* Destructive read (no more data after a
-  read) */
-  printk(KERN_DEBUG "mydriver3: read %d/%d chars
-    %s\n", real, count, buffer);
-  return real;
+
+  printk(KERN_DEBUG "xylo_driver: read %zu/%zu chars%s\n", real, count, buffer);
+
+  /* Changing reading position in the file */
+  if (*ppos == 0)
+  {
+    *ppos+=real;
+    return real;
+  }
+  else
+  {
+    return 0;
+  }
 }
 
 /**
