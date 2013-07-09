@@ -291,8 +291,13 @@ static ssize_t xylo_led_read(struct file *file,
 			     size_t count,
 			     loff_t *ppos)
 {
-  return 0;
-  /* ??? */
+  /* Send scancode info to user-space */
+  //???
+
+  /* no more data => sleep again */
+  //???
+
+  return 0;//strlen(buffer);
 }
 
 /**
@@ -382,8 +387,11 @@ static int xylo_led_probe (struct usb_interface *interface,
 
   printk (KERN_WARNING "xylo_led_probe()\n");
 
+  /// begin fix bineau_t
   /* Register char device interface */
-  /* ??? */
+  usb_register_dev(interface, &xylo_led_class_driver);
+
+  /// end fix
 
   xylo_led_dev = kmalloc (sizeof(struct usb_xylo_led), GFP_KERNEL);
   if (xylo_led_dev == NULL) {
